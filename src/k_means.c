@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-#define N 10
+#define N 10000000
 #define K 4
 
 
@@ -10,7 +10,10 @@
 
 
 float dist(float ponto_x, float ponto_y, float centr_x, float centr_y){
-    return sqrt(pow((ponto_x-centr_x),2) + pow((ponto_y-centr_y),2));
+    
+    
+    return ((ponto_x-centr_x)*(ponto_x-centr_x) )+ ((ponto_y-centr_y)*(ponto_y-centr_y));
+    //return rand() / RAND_MAX;
 }
 
 
@@ -25,6 +28,10 @@ void initPoints(float** points, float** centroids, int** points_in_cluster){
         (*points)[i] = (float) rand() / RAND_MAX;
         (*points)[i+1] = (float) rand() / RAND_MAX;
     }
+
+    for(int i = 0; i < N; i++){
+        (*points_in_cluster)[i] = -1;
+    }
     
     for(int i  = 0; i < K*2 ; i+=2){ // atribuição dos primeiros valores do centroid dos clusters
         (*centroids)[i] = (*points)[i];
@@ -37,7 +44,7 @@ void initPoints(float** points, float** centroids, int** points_in_cluster){
 // caso algum ponto mude de cluster -> retorna true (1)
 int assign_point_to_cluster(float point_x, float point_y, int point_index, float** centroids, int** points_in_cluster, int changed_some_point){
 
-    float d = 100.0f;
+    float d = 10000.0f;
     int cluster = -1;
     for(int i = 0; i < K*2; i+=2){
         float tmp = dist(point_x, point_y, (*centroids)[i], (*centroids)[i+1]);
@@ -45,14 +52,18 @@ int assign_point_to_cluster(float point_x, float point_y, int point_index, float
         if (tmp < d){
             d = tmp;
             cluster = i/2;
+            //printf("cluster %d | i = %d\n", i/2,i );
         }
     }
     if((*points_in_cluster)[point_index] != cluster){ // verificar se o ponto mudou de cluster
         (*points_in_cluster)[point_index] = cluster;
         changed_some_point = 1; //no caso de este ponto mudar de cluster flag passa a true
+        //printf("Point changed for cluster %d\n", cluster);
+    }else{
+        //printf("Point didn't change for cluster %d\n", cluster);
     }
     
-    printf("cluster :: %d\n",cluster);
+    //printf("cluster :: %d\n",cluster);
     //printf("points in cluster :: %d\n", (*points_in_cluster)[point_index]);
 
     return changed_some_point;
@@ -69,34 +80,64 @@ int iterate_points(float** points, float** centroids, int** points_in_cluster, i
 void new_centroids(float** points, float** centroids, int** points_in_cluster){
 
     float* sum = malloc(sizeof(float)*K*2);
+    int* number_points_cluster = malloc(sizeof(int)*K);
 
-    for(int i = 0; i < N*2; i+=2){
+    for(int i = 0; i < K*2; i+=2){
         sum[i] = 0.0f;
+        sum[i+1] = 0.0f;
+        number_points_cluster[i/2] = 0;
     }
 
     for(int i = 0; i < N*2; i+=2){
-        sum[(*points_in_cluster)[i/2]] += (*points)[i];
-        sum[(*points_in_cluster)[i/2+1]] += (*points)[i+1];
+        /*if ((*points_in_cluster)[i/2] == 0 ){
+            printf("%f + %f = %f\n", sum[(*points_in_cluster)[i/2]+1], (*points)[i+1], sum[(*points_in_cluster)[i/2]+1] + (*points)[i+1]);
+            printf("Somar ponto (%f,%f) | Soma atual: (%f,%f) | Nº pontos %d\n", (*points)[i], (*points)[i+1], sum[0], sum[1], number_points_cluster[0]);
+            printf(":: ITERAÇÂO %d ::", i);
+        }
+        */ 
+       //if ((*points_in_cluster)[i/2] == 0 )
+       //printf("sum[1] = %f | i = %d | cluster = %d \n",sum[1],i,(*points_in_cluster)[i/2]);
+        sum[2*(*points_in_cluster)[i/2]] += (*points)[i];
+        sum[2*(*points_in_cluster)[i/2]+1] +=  (*points)[i+1];
+        number_points_cluster[(*points_in_cluster)[i/2]]++;
+        //printf("sum[1] = %f | i = %d | cluster = %d \n\n",sum[1],i,(*points_in_cluster)[i/2]);
+        
     }
+    
+    for(int i = 0; i < K*2; i+=2){
+        //printf("Soma dos pontos, total de pontos :: (%f,%d)\n", sum[(*points_in_cluster)[i/2]], number_points_cluster[(*points_in_cluster)[i/2]]);
+        //printf("Soma dos pontos, total de pontos :: (%f,%d)\n\n", sum[(*points_in_cluster)[i/2]+1], number_points_cluster[(*points_in_cluster)[i/2]]);
 
-    for(int i = 0; i < K*2; i++){
-        (*centroids)[i] = sum[i] / (float) N;
+        (*centroids)[i] = (float) sum[i] / (float) number_points_cluster[i/2];
+        (*centroids)[i+1] = (float) sum[i+1] / (float) number_points_cluster[i/2];
+        //printf("Novo centroide :: (%f,%f) | Número de pontos nesse cluster: %d\n", (*centroids)[i], (*centroids)[i+1], number_points_cluster[i/2]);
     }
+    
+    //for(int i = 0 ; i < K ; i++)
+    //    printf("number of points in cluster %d : %d \n",i,number_points_cluster[i]);
+
 
     free(sum);
+    free(number_points_cluster);
 }
 
 
 void k_means(float** points, float** centroids, int** points_in_cluster){
     int changed_some_point = 1;
+    int n_iter = 0;
     while (changed_some_point){
         changed_some_point = 0;
-        for(int i = 0; i<K*2;i++){
-            //printf("centroids :: %f,%f | ", );
-        }
-        iterate_points(points, centroids, points_in_cluster, changed_some_point);
+        changed_some_point = iterate_points(points, centroids, points_in_cluster, changed_some_point);
         new_centroids(points, centroids, points_in_cluster);
+        /*
+        for(int i = 0; i<K*2;i+=2){
+            printf("centroids :: %f,%f | \n", (*centroids)[i],(*centroids)[i+1]);
+        }
+        */
+        n_iter++;
+        changed_some_point = 0;
     }
+    printf("Número de iterações: %d\n", n_iter);
 }
 
 
@@ -110,23 +151,29 @@ int main(){
     initPoints(&points, &centroids, &points_in_cluster);
     
     printf("points::\n");
+
     for(int i = 0; i < N*2; i+=2){
-        printf("(%f,%f)\n", points[i], points[i+1]);
+        if(points[i] > 1 || points[i+1] > 1)
+            printf("(%f,%f)\n",points[i],points[i+1]);
     }
+    
 
     printf("\n");
 
-    for(int i = 0; i < K*2; i+=2){
-        printf("(%f,%f)\n", centroids[i], centroids[i+1]);
-    }
     
-    printf("\nITERATION::\n");
+    printf("\nKMEANS::\n");
     k_means(&points, &centroids, &points_in_cluster);
-
-    for(int i = 0; i < N; i++){
-        printf("point[%d] in cluster: %d \n", i, points_in_cluster[i]);
+    /*
+    for(int i = 0; i < N*2; i+=2){
+        if(points[i] > 1 || points[i+1] > 1)
+            printf("(%f,%f)\n",points[i],points[i+1]);
+    }
+*/
+    for(int i = 0; i<K*2;i+=2){
+        printf("centroids :: %f,%f | \n", centroids[i],centroids[i+1]);
     }
     
+
     
     
     
