@@ -12,8 +12,7 @@
 float dist(float ponto_x, float ponto_y, float centr_x, float centr_y){
     
     
-    return ((ponto_x-centr_x)*(ponto_x-centr_x) )+ ((ponto_y-centr_y)*(ponto_y-centr_y));
-    //return rand() / RAND_MAX;
+    return fabs(ponto_x-centr_x) + fabs(ponto_y-centr_y);
 }
 
 
@@ -135,7 +134,7 @@ void k_means(float** points, float** centroids, int** points_in_cluster){
         }
         */
         n_iter++;
-        changed_some_point = 0;
+
     }
     printf("Número de iterações: %d\n", n_iter);
 }
@@ -171,27 +170,5 @@ int main(){
 */
     for(int i = 0; i<K*2;i+=2){
         printf("centroids :: %f,%f | \n", centroids[i],centroids[i+1]);
-    }
-    
-
-    
-    
-    
+    }   
 }
-
-
-// (0.000078,0.315378)
-// (0.556053,0.586501)
-// (0.327672,0.189592)
-// (0.470446,0.788647)
-// (0.792964,0.346929)
-// (0.835021,0.194164)
-// (0.309653,0.345721)
-// (0.534616,0.297002)
-// (0.711494,0.076982)
-// (0.834157,0.668422)
-
-// (0.000078,0.315378)
-// (0.556053,0.586501)
-// (0.327672,0.189592)
-// (0.470446,0.788647)
