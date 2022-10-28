@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "../include/utils.h"
 
 
@@ -33,8 +34,8 @@ void remove_ponto_cluster(Ponto p, Centroide * c){
 }
 
 void adiciona_ponto_cluster(Ponto p, Centroide * c){
-    c->soma_x += p.x;
-    c->soma_y += p.y;
+    c->soma_x +=  p.x;
+    c->soma_y +=  p.y;
     c->total_pontos++;
 }
 
@@ -63,6 +64,12 @@ void atualiza_cluster(Ponto*p , int cluster){
 }
 
 void atualiza_centroide(Centroide * c){
-    c->x = c->soma_x/(float)c->total_pontos;
-    c->y = c->soma_y/(float)c->total_pontos;
+    c->x = c->soma_x/c->total_pontos;
+    c->y = c->soma_y/c->total_pontos;
+}
+
+void reset_centroid(Centroide * c){
+    c->soma_x = 0.0f;
+    c->soma_y = 0.0f;
+    c->total_pontos = 0;
 }

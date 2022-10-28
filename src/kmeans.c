@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "../include/utils.h"
 
 #define K 4
@@ -10,6 +11,7 @@
 
 
 float dist(Ponto point, Centroide centroide){
+    //return fabs(point.x - centroide.x) + fabs(point.y - centroide.y);
     return (point.x - centroide.x) * (point.x - centroide.x) 
     + (point.y - centroide.y) * (point.y - centroide.y);
 }
@@ -64,10 +66,12 @@ void k_means(Ponto* points, Centroide* centroids){
         //printf("ponto alterado = %d\n",changed_some_point);
         new_centroids(centroids);
         n_iter++;
-       /* printf("Número de iterações: %d\n", n_iter);
-        for(int i = 0; i < K; i++)
-            printf("[%d] soma pontos: (%f,%f) | total pontos: %d\n",i, centroids[i].x, centroids[i].y, centroids[i].total_pontos);*/
+        for(int i = 0; i < K; i++){
+            printf("(%f,%f)\n", centroids[i].x,centroids[i].y);
+        }
     }
+    printf("Número de iterações: %d\n", n_iter);
+
 }
 
 
@@ -77,9 +81,11 @@ int main(){
     
     init_pontos(&pontos, &centroides, N,K);
 
-    for(int i = 0; i < K; i++)
-        printf("[%d] soma pontos: (%f,%f) | total pontos: %d\n",i, centroides[i].x, centroides[i].y, centroides[i].total_pontos);
-    
+    printf(":: PONTOS ::\n");
+    for (int i = 0; i<  N ; i++ ){
+        printf("(%f,%f)\n", pontos[i].x, pontos[i].y);
+    }
+
     printf(":: INICIO KMEANS ::\n");
 
     k_means(pontos,centroides);
