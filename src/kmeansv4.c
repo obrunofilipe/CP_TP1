@@ -190,7 +190,7 @@ int main(int argc, char** argv){
 
     
 
-    //ola
+    
     
     init_pontos(&pontos, &centroides, &ct);
 
