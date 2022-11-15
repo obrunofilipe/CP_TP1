@@ -158,7 +158,7 @@ void new_centroids(Centroide* centroides){// para cada centroide, vai ser calcul
 }
 
 
-void k_means(Ponto* points, Centroide* centroids, Centroide_Threads** ct){
+int k_means(Ponto* points, Centroide* centroids, Centroide_Threads** ct){
 
     int changed_some_point = 1;
     int n_iter = 0;
@@ -176,6 +176,7 @@ void k_means(Ponto* points, Centroide* centroids, Centroide_Threads** ct){
             }
         }
     }
+    return n_iter;
 }
 
 
@@ -195,9 +196,10 @@ int main(int argc, char** argv){
     init_pontos(&pontos, &centroides, &ct);
 
 
-    k_means(pontos,centroides, ct);
+    int n_iter = k_means(pontos,centroides, ct);
     
     for(int i = 0; i < K; i++)
        printf("[%d] soma pontos: (%f,%f) | total pontos: %d\n",i, centroides[i].x, centroides[i].y, centroides[i].total_pontos); 
+    printf("Número de iterações: %d\n", n_iter);
     
 }
