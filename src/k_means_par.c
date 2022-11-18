@@ -124,18 +124,6 @@ int assign_point_to_cluster(Ponto* point, Centroide* centroides, int changed_som
     return changed_some_point;
 }
 
-/*
-    [
-        [soma_xc1, soma_yc1, soma_xc2, soma_yc2],
-        [soma_xc1, soma_yc1, soma_xc2, soma_yc2],
-        [soma_xc1, soma_yc1, soma_xc2, soma_yc2],
-        [soma_xc1, soma_yc1, soma_xc2, soma_yc2]
-    ]
-
-    c1 -> soma_x = soma_xc1 + soma_xc1 + soma_xc1 + soma_xc1
-    
-*/
-
 
 int iterate_points(Ponto* points, Centroide* centroides, int changed_some_point, Centroide_Threads** ct){
     #pragma omp parallel for num_threads(n_threads) reduction(+:changed_some_point)
@@ -193,7 +181,9 @@ int main(int argc, char** argv){
     
     N = atoi(argv[1]);
     K = atoi(argv[2]);
-    n_threads = atoi(argv[3]);
+    if (argc == 4) n_threads = atoi(argv[3]);
+    else n_threads = 1;
+    
 
     
 
